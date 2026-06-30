@@ -1,0 +1,14 @@
+{
+  "dataUrl": "https://raw.githubusercontent.com/OWNER/REPO/data/data.json",
+  "alertThreshold": 85,
+  "refreshSeconds": 60,
+  "staleAfterSeconds": 300,
+  "providers": {
+    "claude": { "name": "Claude Code", "logo": "🟧", "sub": "Anthropic" },
+    "codex": { "name": "Codex", "logo": "🟢", "sub": "OpenAI" }
+  },
+  "windowLabels": {
+    "5h": "5 小時視窗",
+    "weekly": "每週視窗"
+  }
+}

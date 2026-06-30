@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-06-30T12:00:00.000Z",
+  "claude": {
+    "available": true,
+    "windows": {
+      "5h": { "usedPercent": 42, "resetsAt": "2026-06-30T15:00:00.000Z" },
+      "weekly": { "usedPercent": 18, "resetsAt": "2026-07-03T00:00:00.000Z" }
+    }
+  },
+  "codex": {
+    "available": true,
+    "windows": {
+      "5h": { "usedPercent": 88, "resetsAt": "2026-06-30T14:30:00.000Z" },
+      "weekly": { "usedPercent": 61, "resetsAt": "2026-07-04T00:00:00.000Z" }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+node_modules/
+collector/out/
+*.log
+.DS_Store

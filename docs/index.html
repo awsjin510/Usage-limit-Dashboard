@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Claude × Codex 使用量儀表板</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='14'>📊</text></svg>" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="title">使用量儀表板</h1>
+    <div class="topbar-actions">
+      <span id="status" class="status" title="最後更新時間">—</span>
+      <button id="refreshBtn" class="btn" type="button" title="立即刷新">↻</button>
+      <button id="fullscreenBtn" class="btn" type="button" title="全螢幕">⛶</button>
+    </div>
+  </header>
+
+  <main id="grid" class="grid">
+    <!-- provider cards are rendered here by app.js -->
+  </main>
+
+  <div id="error" class="error hidden" role="alert"></div>
+
+  <footer class="footer">
+    <span id="generatedAt">—</span>
+    <span class="sep">·</span>
+    <span>每 <span id="refreshSeconds">60</span>s 自動刷新</span>
+    <span class="sep">·</span>
+    <span>僅顯示使用量摘要（百分比與重置時間）</span>
+  </footer>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
