@@ -24,6 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          # Enable Pages automatically (uses the GITHUB_TOKEN's pages:write
+          # permission) so no manual Settings → Pages step is required.
+          enablement: true
       - name: Upload dashboard (docs/)
         uses: actions/upload-pages-artifact@v3
         with:
