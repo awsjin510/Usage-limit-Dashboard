@@ -188,6 +188,10 @@ html, body {
   color: var(--text);
   font-size: 14px;
 }
+.error.info {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: var(--accent);
+}
 .hidden { display: none; }
 
 .footer {

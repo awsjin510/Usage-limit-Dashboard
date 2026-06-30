@@ -164,10 +164,17 @@ function render(payload) {
 function showError(msg) {
   const el = document.getElementById("error");
   el.textContent = "⚠️ " + msg;
+  el.classList.remove("hidden", "info");
+}
+function showNotice(msg) {
+  const el = document.getElementById("error");
+  el.textContent = "ℹ️ " + msg;
+  el.classList.add("info");
   el.classList.remove("hidden");
 }
 function clearError() {
   document.getElementById("error").classList.add("hidden");
+  document.getElementById("error").classList.remove("info");
 }
 
 /* ---------- data loading ---------- */
@@ -184,10 +191,18 @@ async function fetchJSON(url) {
 }
 
 async function loadData() {
-  const primary = isConfigured(config.dataUrl) ? config.dataUrl : "./data.json";
+  const configured = isConfigured(config.dataUrl);
+  const primary = configured ? config.dataUrl : "./data.json";
   try {
     const payload = await fetchJSON(primary);
-    clearError();
+    if (configured) {
+      clearError();
+    } else {
+      // dataUrl 還是 OWNER/REPO 佔位字串 → 顯示的是內建範例，不是真實用量。
+      showNotice(
+        "目前顯示的是「範例資料」，不是你的真實用量。請設定 config.json 的 dataUrl 並執行收集器（見 README）。"
+      );
+    }
     render(payload);
   } catch (e) {
     // Fall back to bundled sample for local preview / first-run demo.
