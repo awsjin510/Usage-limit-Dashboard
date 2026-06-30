@@ -17,6 +17,8 @@ const PROVIDER_ORDER = ["claude", "codex"];
 
 let config = DEFAULT_CONFIG;
 let timer = null;
+let manual = false; // true when showing pasted data — auto-refresh is paused
+const PASTE_KEY = "usageDashboard.pastedPayload";
 
 /* ---------- helpers ---------- */
 
@@ -190,7 +192,60 @@ async function fetchJSON(url) {
   return res.json();
 }
 
+// Build a provider object from a Claude usage-cache.json (rate_limits shape).
+function providerFromClaudeCache(rl) {
+  const win = (w) => {
+    w = w || {};
+    const pct = typeof w.used_percentage === "number" ? w.used_percentage : null;
+    let resetsAt = null;
+    if (typeof w.resets_at === "number") {
+      // Unix epoch seconds (Claude statusLine) — but tolerate ms just in case.
+      const ms = w.resets_at < 1e12 ? w.resets_at * 1000 : w.resets_at;
+      resetsAt = new Date(ms).toISOString();
+    } else if (typeof w.resets_at === "string") {
+      const d = new Date(w.resets_at);
+      if (!isNaN(d.getTime())) resetsAt = d.toISOString();
+    }
+    return { usedPercent: pct, resetsAt };
+  };
+  const five = win(rl.five_hour);
+  const week = win(rl.seven_day);
+  return {
+    available: five.usedPercent !== null || week.usedPercent !== null,
+    windows: { "5h": five, weekly: week },
+  };
+}
+
+// Accept either a full data.json payload, or a raw ~/.claude/usage-cache.json.
+function normalizePasted(obj) {
+  if (obj && (obj.claude || obj.codex)) return obj; // already a data.json payload
+  const rl = obj && (obj.rate_limits || obj);
+  if (rl && (rl.five_hour || rl.seven_day)) {
+    const at = obj && typeof obj.fetchedAt === "number" ? new Date(obj.fetchedAt) : new Date();
+    return { generatedAt: at.toISOString(), claude: providerFromClaudeCache(rl) };
+  }
+  throw new Error("無法辨識的格式：需要 data.json 或含 rate_limits 的 usage-cache.json");
+}
+
+function showPasted(payload, persist) {
+  manual = true;
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+  if (persist) {
+    try {
+      localStorage.setItem(PASTE_KEY, JSON.stringify(payload));
+    } catch (_) {
+      /* storage may be unavailable */
+    }
+  }
+  render(payload);
+  showNotice("顯示你貼上的資料（自動刷新已暫停）。按「清除」可恢復。");
+}
+
 async function loadData() {
+  if (manual) return; // showing pasted data — don't overwrite
   const configured = isConfigured(config.dataUrl);
   const primary = configured ? config.dataUrl : "./data.json";
   try {
@@ -244,14 +299,67 @@ async function init() {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
     else document.exitFullscreen();
   });
-  // Pause polling when tab hidden; refresh immediately when it returns.
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") loadData();
   });
 
-  await loadData();
-  const ms = Math.max(10, Number(config.refreshSeconds) || 60) * 1000;
-  timer = setInterval(loadData, ms);
+  // --- paste-data UI ---
+  const panel = document.getElementById("pastePanel");
+  const pasteMsg = document.getElementById("pasteMsg");
+  document.getElementById("pasteBtn").addEventListener("click", () => {
+    panel.classList.toggle("hidden");
+  });
+  document.getElementById("pasteShow").addEventListener("click", () => {
+    pasteMsg.classList.remove("error");
+    pasteMsg.textContent = "";
+    const text = document.getElementById("pasteText").value.trim();
+    if (!text) {
+      pasteMsg.textContent = "請先貼上 JSON。";
+      pasteMsg.classList.add("error");
+      return;
+    }
+    try {
+      const payload = normalizePasted(JSON.parse(text));
+      showPasted(payload, true);
+      panel.classList.add("hidden");
+    } catch (e) {
+      pasteMsg.textContent = "解析失敗：" + e.message;
+      pasteMsg.classList.add("error");
+    }
+  });
+  document.getElementById("pasteClear").addEventListener("click", () => {
+    try {
+      localStorage.removeItem(PASTE_KEY);
+    } catch (_) {
+      /* ignore */
+    }
+    document.getElementById("pasteText").value = "";
+    manual = false;
+    clearError();
+    loadData();
+    if (!timer) {
+      const ms = Math.max(10, Number(config.refreshSeconds) || 60) * 1000;
+      timer = setInterval(loadData, ms);
+    }
+  });
+
+  // Restore previously pasted data (survives refresh) so the user keeps their view.
+  let restored = false;
+  try {
+    const saved = localStorage.getItem(PASTE_KEY);
+    if (saved) {
+      showPasted(JSON.parse(saved), false);
+      restored = true;
+    }
+  } catch (_) {
+    /* ignore */
+  }
+
+  if (!restored) {
+    await loadData();
+    const ms = Math.max(10, Number(config.refreshSeconds) || 60) * 1000;
+    timer = setInterval(loadData, ms);
+  }
 }
 
 init();

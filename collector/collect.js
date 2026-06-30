@@ -113,7 +113,7 @@ function collectClaude() {
 
   const container = raw.windows || raw.limits || raw.rate_limits || raw.usage || raw;
   const fiveH = pick(container, [/5\s*h/i, /five/i, /hour/i, /session/i]) || container;
-  const week = pick(container, [/week/i, /weekly/i, /7\s*d/i]) || container;
+  const week = pick(container, [/week/i, /weekly/i, /7\s*d/i, /seven/i, /day/i]) || container;
 
   const pctRegex = [/used.*percent/i, /percent.*used/i, /usage.*percent/i, /^percent/i, /pct/i, /utiliz/i];
   const resetAtRegex = [/reset.*at/i, /resets?_?at/i, /expires?(_at)?/i, /expiry/i];

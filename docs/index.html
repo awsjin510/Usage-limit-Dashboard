@@ -13,10 +13,21 @@
     <h1 class="title">使用量儀表板</h1>
     <div class="topbar-actions">
       <span id="status" class="status" title="最後更新時間">—</span>
+      <button id="pasteBtn" class="btn btn-wide" type="button" title="貼上你的 usage-cache.json 立即查看真實用量">貼上資料</button>
       <button id="refreshBtn" class="btn" type="button" title="立即刷新">↻</button>
       <button id="fullscreenBtn" class="btn" type="button" title="全螢幕">⛶</button>
     </div>
   </header>
+
+  <section id="pastePanel" class="paste-panel hidden">
+    <label for="pasteText">貼上 <code>~/.claude/usage-cache.json</code> 的內容（或一份 data.json）。資料只在本機瀏覽器解析，不會上傳。</label>
+    <textarea id="pasteText" rows="6" placeholder='{ "fetchedAt": ..., "rate_limits": { "five_hour": { "used_percentage": 7, "resets_at": ... }, "seven_day": { "used_percentage": 39, "resets_at": ... } } }'></textarea>
+    <div class="paste-actions">
+      <button id="pasteShow" class="btn btn-primary" type="button">顯示</button>
+      <button id="pasteClear" class="btn" type="button">清除</button>
+      <span id="pasteMsg" class="paste-msg"></span>
+    </div>
+  </section>
 
   <main id="grid" class="grid">
     <!-- provider cards are rendered here by app.js -->

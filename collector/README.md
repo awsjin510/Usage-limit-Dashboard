@@ -7,6 +7,39 @@
 > 為什麼需要它？GitHub Pages 是純靜態網站，伺服器端無法存取你電腦上的
 > `~/.claude` 與 `~/.codex`。所以由本地收集器負責讀取與上傳。
 
+## Windows 快速體驗：先看到一次真實的 Claude 用量（不需 Node、不需 git）
+
+Claude Code 預設**不會**把用量存到磁碟——`~/.claude/usage-cache.json` 要靠
+**statusLine 腳本**才會生成（5 小時與每週百分比只在 statusLine 的輸入裡）。
+
+1. **放好腳本**：把本資料夾的 `claude-statusline.ps1` 複製到例如
+   `C:\Users\你的帳號\claude-statusline.ps1`。
+
+2. **設定 Claude Code 的 statusLine**：編輯 `%USERPROFILE%\.claude\settings.json`，
+   加入（若已有其他設定，把 `statusLine` 這段併進去）：
+   ```json
+   {
+     "statusLine": {
+       "type": "command",
+       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\你的帳號\\claude-statusline.ps1\""
+     }
+   }
+   ```
+
+3. **重開 Claude Code、送出一則訊息**。`rate_limits` 只有 **Pro/Max 訂閱**、
+   且**送出第一則訊息後**才會出現；這時腳本就會寫出 `usage-cache.json`。
+
+4. **確認檔案產生**（PowerShell）：
+   ```powershell
+   Get-Content $HOME\.claude\usage-cache.json -Raw
+   ```
+
+5. **貼到儀表板看真實數字**：打開你部署好的儀表板網址 →
+   右上「**貼上資料**」→ 貼上上一步的內容 → 按「**顯示**」。
+   立刻看到你真實的 5 小時 / 每週百分比（資料只在瀏覽器解析，不會上傳）。
+
+> 確認可行後，再往下做「持續自動更新」（推到 `data` 分支，讓儀表板自動顯示）。
+
 ## 讀取來源
 
 | 來源 | 路徑 | 說明 |
